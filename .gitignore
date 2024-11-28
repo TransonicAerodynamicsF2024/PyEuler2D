@@ -8,7 +8,7 @@ __pycache__/
 
 # Folders
 *.dat
-
+src/output/**/
 
 # Distribution / packaging
 .Python

@@ -5,7 +5,7 @@ np.set_printoptions(precision=3, suppress=True)
 
 
 class Monitor():
-    def __init__(self, ConvectiveFluxDiscretizationScheme, TimeIntegrationMethod, itermax = 50000, eps = 10**(-8)):
+    def __init__(self, ConvectiveFluxDiscretizationScheme, TimeIntegrationMethod, itermax = 50000, eps = 10**(-8), seeMonitor:bool=False):
         self.scheme = ConvectiveFluxDiscretizationScheme
         self.time_integration = TimeIntegrationMethod
 
@@ -17,6 +17,8 @@ class Monitor():
         self.res_rhou = []
         self.res_rhov = []
         self.res_rhoE = []
+
+        self.seeMonitor = seeMonitor
 
     def iterate(self, mesh, W, M_inf, AOA):
         self.scheme.getResiduals(W, mesh)
@@ -49,18 +51,19 @@ class Monitor():
             col1_width = max(len(row[0]) for row in data) + 2  # Add padding
             col2_width = 20  # Fixed width for values for alignment
 
-            # Print the table header
-            print("+" + "-" * col1_width + "+" + "-" * col2_width + "+")
-            print(f"| {'Quantity'.ljust(col1_width - 1)} | {'Value'.ljust(col2_width - 1)} |")
-            print("+" + "-" * col1_width + "+" + "-" * col2_width + "+")
+            if self.seeMonitor:
+                # Print the table header
+                print("+" + "-" * col1_width + "+" + "-" * col2_width + "+")
+                print(f"| {'Quantity'.ljust(col1_width - 1)} | {'Value'.ljust(col2_width - 1)} |")
+                print("+" + "-" * col1_width + "+" + "-" * col2_width + "+")
 
-            # Print the table rows
-            for row in data:
-                quantity, value = row
-                print(f"| {quantity.ljust(col1_width - 1)} | {str(value).ljust(col2_width - 1)} |")
+                # Print the table rows
+                for row in data:
+                    quantity, value = row
+                    print(f"| {quantity.ljust(col1_width - 1)} | {str(value).ljust(col2_width - 1)} |")
 
-            # Print the bottom border
-            print("+" + "-" * col1_width + "+" + "-" * col2_width + "+")
+                # Print the bottom border
+                print("+" + "-" * col1_width + "+" + "-" * col2_width + "+")
 
             if (self.res_rho[-1]/self.res_rho[0]<=self.eps):
                 print("Computation has converged !\n")
