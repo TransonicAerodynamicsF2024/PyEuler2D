@@ -30,3 +30,4 @@ class ConservedVariables():
         self.rhou[:, :] = rho*u
         self.rhov[:, :] = rho*v
         self.rhoE[:, :] = rhoE
+

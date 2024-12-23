@@ -1,11 +1,12 @@
 import numpy as np
 from modules.boundaryconditions import apply_boundary_conditions
 import matplotlib.pyplot as plt
+from modules.implicit_residuals import ImplicitResidualSmoothing
 np.set_printoptions(precision=3, suppress=True)
 
 
 class Monitor():
-    def __init__(self, ConvectiveFluxDiscretizationScheme, TimeIntegrationMethod, itermax = 50000, eps = 10**(-8), seeMonitor:bool=False):
+    def __init__(self, ConvectiveFluxDiscretizationScheme, TimeIntegrationMethod, itermax = 50000, eps = 10**(-8), enable_smoothing=False, seeMonitor:bool=True):
         self.scheme = ConvectiveFluxDiscretizationScheme
         self.time_integration = TimeIntegrationMethod
 
@@ -19,9 +20,21 @@ class Monitor():
         self.res_rhoE = []
 
         self.seeMonitor = seeMonitor
+        self.enable_smoothing = enable_smoothing
+
+        if self.enable_smoothing:
+            self.smoothing = ImplicitResidualSmoothing(smoothing_coefficient=0.1)
 
     def iterate(self, mesh, W, M_inf, AOA):
         self.scheme.getResiduals(W, mesh)
+
+        # SMOOTH RESIDUALS
+        if self.enable_smoothing:
+            self.scheme.res_rho = self.smoothing.smooth(self.scheme.res_rho, mesh)
+            self.scheme.res_rhou = self.smoothing.smooth(self.scheme.res_rhou, mesh)
+            self.scheme.res_rhov = self.smoothing.smooth(self.scheme.res_rhov, mesh)
+            self.scheme.res_rhoE = self.smoothing.smooth(self.scheme.res_rhoE, mesh)
+
 
         # Initialization of residuals
         self.res_rho.append(np.max(self.scheme.res_rho[mesh.n_ghosts:-(mesh.n_ghosts + 1), mesh.n_ghosts:-(mesh.n_ghosts + 1)]))

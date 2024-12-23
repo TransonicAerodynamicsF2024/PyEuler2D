@@ -5,10 +5,12 @@ __pycache__/
 
 # C extensions
 *.so
+*.txt
 
 # Folders
 *.dat
 src/output/**/
+ignore/
 
 # Distribution / packaging
 .Python
